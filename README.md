@@ -218,6 +218,40 @@ sudo salt 'node01' state.apply queue=True
 sudo salt 'node01' state.highstate queue=True
 ```
 
+## Create jinja manifest
+```
+sudo vi /srv/salt/jinja/init.sls
+```
+```
+# Jinja2 Conditionals
+{%- if grains['os_family'] == 'RedHat' %}
+  {%- set package  = 'httpd' %}
+{%- elif grains['os_family'] == 'Debian' %}
+ {%- set package  = 'apache2' %}
+{%- endif %}
+
+install {{ package }} server:
+  pkg.installed:
+    - name: {{ package }}
+
+# Jinja2 Loops
+{%- for usr in ['moe','larry','curly'] %}
+create user {{ usr }}:
+ user.present:
+    - name: nice
+{%- endfor %}
+```
+
+## Testing single jinja state
+```
+sudo salt 'node01' state.apply jinja test=True
+```
+
+## Apply single jinja state
+```
+sudo salt 'node01' state.apply jinja queue=True
+```
+
 ## Cleanup salt environment in docker
 
 ```
