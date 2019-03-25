@@ -1,0 +1,39 @@
+version: '3'
+services:
+
+  salt:
+    container_name: salt
+    image: dawidmalina/docker-node:ubuntu-18
+    privileged: true
+    restart: always
+    environment:
+      container: docker
+    hostname: salt
+    networks:
+      demo:
+
+  node01:
+    container_name: node01
+    image: dawidmalina/docker-node:ubuntu-18
+    privileged: true
+    environment:
+      container: docker
+    restart: always
+    hostname: node01
+    networks:
+      demo:
+
+  node02:
+    container_name: node02
+    image: dawidmalina/docker-node:ubuntu-18
+    privileged: true
+    environment:
+      container: docker
+    restart: always
+    hostname: node02
+    networks:
+      demo:
+
+networks:
+  demo:
+    driver: bridge
