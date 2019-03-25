@@ -62,7 +62,10 @@ sudo apt-get install -y curl gnupg-agent iputils-ping
 ```
 
 ## Download salt bootstrap shell script
+
+```
 curl -L https://bootstrap.saltstack.com -o install_salt.sh
+```
 
 ## Install salt master
 
@@ -94,6 +97,125 @@ salt-key --accept=<key>
 
 ```
 sudo salt-key --accept-all
+```
+
+## Create required folders
+
+```
+mkdir -p /srv/salt/{package,user,file,directory,service}
+```
+
+## Create main configuration file
+```
+sudo vi /srv/salt/top.sls
+```
+```
+---
+base:
+  '*':
+    - package
+    - user
+    - directory
+  'node*’:
+    - file
+  'G@os:ubuntu':
+    - service
+```
+
+## Create package manifest
+```
+sudo vi /srv/salt/package/init.sls
+```
+```
+---
+install rsync package:
+  pkg.installed:
+    - name: rsync
+```
+
+## Create user manifest
+
+```
+sudo vi /srv/salt/user/init.sls
+```
+```
+---
+create nice user:
+  user.present:
+    - name: nice
+    - shell: /bin/bash
+    - home: /home/nice
+    - groups:
+      - sudo
+```
+
+## Create directory manifest
+```
+sudo vi /srv/salt/directory/init.sls
+```
+```
+---
+create simple directory:
+ file.directory:
+   - name: /opt/simple_directory
+   - user: root
+   - group: root
+   - mode: 755
+```
+
+## Create file manifest
+```
+sudo vi /srv/salt/file/init.sls
+```
+```
+---
+create very nice file:
+  file.managed:
+    - name: /opt/simple_directory/nice.txt
+    - contents: |
+        Welcome to very nice file
+        #saltstackworkshops
+```
+
+## Create service manifest
+```
+sudo vi /srv/salt/service/init.sls
+```
+```
+---
+make sure ssh service is running:
+  service.running:
+    - name: ssh
+    - enable: True
+```
+
+## Testing single state
+```
+sudo salt 'node01' state.apply package test=True
+sudo salt 'node01' state.apply user test=True
+sudo salt 'node01' state.apply directory test=True
+sudo salt 'node01' state.apply service test=True
+sudo salt 'node01' state.apply file test=True
+```
+## Testing all states (highstate)
+```
+sudo salt 'node01' state.apply test=True
+sudo salt 'node01' state.highstate test=True
+```
+
+## Apply single state
+```
+sudo salt 'node01' state.apply package queue=True
+sudo salt 'node01' state.apply user queue=True
+sudo salt 'node01' state.apply directory queue=True
+sudo salt 'node01' state.apply service queue=True
+sudo salt 'node01' state.apply file queue=True
+```
+
+## Apply all states (highstate)
+```
+sudo salt 'node01' state.apply queue=True
+sudo salt 'node01' state.highstate queue=True
 ```
 
 ## Cleanup salt environment in docker
